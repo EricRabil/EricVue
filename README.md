@@ -1,0 +1,2 @@
+# EricVue
+My new website :)
