@@ -28,7 +28,7 @@ enum BackgroundState {
   }
 })
 export default class App extends Vue {
-  smoothBackground: BackgroundState = BackgroundState.INIT;
+  smoothBackground: BackgroundState = BackgroundState.PRELOAD;
 
   mounted () {
     this.$watch('background', (background) => {
@@ -43,6 +43,8 @@ export default class App extends Vue {
           break
       }
     })
+
+    this.$el.classList.remove('from-ssr')
   }
 
   get background () {
@@ -76,6 +78,16 @@ export default class App extends Vue {
 
     &.background-smooth {
       transition: background-color 16s ease-in-out;
+    }
+  }
+
+  &.from-ssr {
+    .background {
+      background-color: black !important;
+    }
+
+    .status-holder {
+      display: none !important;
     }
   }
 
