@@ -22,8 +22,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Presence, SpotifyAssets } from '../DiscordStatus.vue'
 
-const scdn = (tag: string) => `https://i.scdn.co/image/${tag}`
-
 @Component
 export default class SpotifyPresence extends Vue {
   @Prop()
@@ -32,16 +30,42 @@ export default class SpotifyPresence extends Vue {
   @Prop()
   assets: SpotifyAssets;
 
-  $refs: {
-    artHolder: HTMLImageElement;
+  interval: ReturnType<typeof setTimeout>;
+
+  mounted () {
+    this.roll()
+  }
+
+  roll () {
+    this.$store.commit('setBackground', this.next())
+    this.interval = setTimeout(this.roll, 15000)
+  }
+
+  index = 0;
+  next (): string | null {
+    if (!this.palette) return null
+    const value = this.palette[this.index]
+    this.index += 1
+    if (this.index >= this.palette.length) this.index = 0
+    return value
   }
 
   get artwork (): string | null {
+    if (!this.tag) return null
+    return this.assets[this.tag].url
+  }
+
+  get palette (): string[] | null {
+    if (!this.tag) return null
+    return this.assets[this.tag].palette
+  }
+
+  get tag (): string | null {
     const { largeImage } = this.presence.assets || {}
     if (!largeImage) return null
     const [protocol, tag] = largeImage.split(':')
     if (protocol !== 'spotify') return null
-    return this.assets[tag].url
+    return tag
   }
 
   get album (): string | null {
