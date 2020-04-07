@@ -143,7 +143,7 @@ export default class App extends Vue {
 .tooltip {
   display: block !important;
   z-index: 10000;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: Avenir, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 0.8rem;
