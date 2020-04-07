@@ -83,7 +83,7 @@ export default class App extends Vue {
 
   &.from-ssr {
     .background {
-      background-color: black !important;
+      background-color: #ff0000 !important;
     }
 
     .status-holder {
