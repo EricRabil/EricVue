@@ -2,7 +2,7 @@
   <div class="presence spotify-presence">
     <span class="presence-cta">Listening to Spotify</span>
     <div class="presence-detail">
-      <img ref="artHolder" class="detail-asset" :src="artwork" />
+      <img ref="artHolder" class="detail-asset" :src="artwork" alt="Album Artwork" />
       <div class="detail-text">
         <span class="detail-major">
           {{song}}

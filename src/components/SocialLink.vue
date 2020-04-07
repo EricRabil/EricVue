@@ -1,5 +1,5 @@
 <template>
-  <a :href="link" class="fa-wrap" v-on="$listeners">
+  <a :href="link" :aria-label="icon" class="fa-wrap" v-on="$listeners">
     <font-awesome-icon :icon="['fab', icon]" />
   </a>
 </template>

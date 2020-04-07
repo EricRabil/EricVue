@@ -68,13 +68,18 @@ export default class DiscordStatus extends Vue {
   socket: WebSocket = null!;
 
   created () {
+    this.respawnSocket();
+  }
+
+  respawnSocket() {
     this.socket = new WebSocket(PRESENCE_URL)
     this.socket.addEventListener('message', ({ data }) => {
       const { activities, spotifyAssets } = JSON.parse(data)
 
       this.presences = activities
       this.spotifyAssets = spotifyAssets
-    })
+    });
+    this.socket.addEventListener('close', () => setTimeout(() => this.respawnSocket(), 5000));
   }
 
   observing = false;

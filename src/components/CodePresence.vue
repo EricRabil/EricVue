@@ -4,7 +4,7 @@
       Coding
     </span>
     <div class="presence-detail">
-      <img class="detail-asset" :src="largeImage" />
+      <img class="detail-asset" :src="largeImage" alt="Visual Studio Code Icon" />
       <div class="detail-text">
         <span class="detail-major">
           {{task}}
