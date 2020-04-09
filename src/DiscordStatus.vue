@@ -90,7 +90,6 @@ export default class DiscordStatus extends Vue {
 
       const recompute = () => {
         const children = Array.from(this.$el.children)
-        console.log(children)
         children.sort((a, b) => b.clientWidth - a.clientWidth)
         children.forEach((c, i) => {
           (c as HTMLElement).style.order = i.toString()
