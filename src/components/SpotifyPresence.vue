@@ -2,7 +2,7 @@
   <div class="presence spotify-presence">
     <span class="presence-cta">Listening to Spotify</span>
     <div class="presence-detail">
-      <img ref="artHolder" class="detail-asset" :src="artwork" alt="Album Artwork" />
+      <img v-if="artwork" ref="artHolder" class="detail-asset" :src="artwork" alt="Album Artwork" />
       <div class="detail-text">
         <span class="detail-major">
           {{song}}
@@ -41,17 +41,20 @@ export default class SpotifyPresence extends Vue {
   index = 0;
   next (): string | null {
     if (!this.palette) return null
+    if (this.palette.length === 0) return null
     const value = this.palette[this.index]
     this.index += 1
     if (this.index >= this.palette.length) this.index = 0
     return value
   }
 
-  get artwork (): string {
+  get artwork (): string | null {
+    if (!this.presence || !this.presence.data) return null;
     return (this.presence as any).data.artwork
   }
 
   get palette (): string[] {
+    if (!this.presence || !this.presence.data) return [];
     return (this.presence as any).data.palette
   }
 

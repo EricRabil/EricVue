@@ -39,6 +39,7 @@ export interface Presence {
   flags: number;
   emoji: string | null;
   createdTimestamp: number;
+  data?: any;
 }
 
 export interface PresenceResponse {
