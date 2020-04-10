@@ -27,9 +27,6 @@ export default class SpotifyPresence extends Vue {
   @Prop()
   presence: Presence;
 
-  @Prop()
-  assets: SpotifyAssets;
-
   interval: ReturnType<typeof setTimeout>;
 
   mounted () {
@@ -50,14 +47,12 @@ export default class SpotifyPresence extends Vue {
     return value
   }
 
-  get artwork (): string | null {
-    if (!this.tag) return null
-    return this.assets[this.tag].url
+  get artwork (): string {
+    return (this.presence as any).data.artwork
   }
 
-  get palette (): string[] | null {
-    if (!this.tag) return null
-    return this.assets[this.tag].palette
+  get palette (): string[] {
+    return (this.presence as any).data.palette
   }
 
   get tag (): string | null {

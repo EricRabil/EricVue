@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <div :class="['background', {'background-fast': smoothBackground === 1, 'background-smooth': smoothBackground === 2}]" :style="{'background-color': background}">
+    <div class="background-root">
+      <div :class="['background', {'background-fast': smoothBackground === 1, 'background-smooth': smoothBackground === 2}]" :style="{'background-color': background}">
+    </div>
     </div>
     <div class="contents">
       <div class="greeting">
@@ -14,6 +16,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import gradstop from 'gradstop'
 import SocialThings from '@/components/SocialThings.vue'
 
 enum BackgroundState {
@@ -47,6 +50,14 @@ export default class App extends Vue {
     this.$el.classList.remove('from-ssr')
   }
 
+  get stops () {
+    return gradstop({
+      stops: 10,
+      inputFormat: 'hex',
+      colorArray: [this.background, '#000000']
+    })
+  }
+
   get background () {
     return this.$store.state.backgroundColor
   }
@@ -60,6 +71,12 @@ export default class App extends Vue {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  .background-root {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+  }
 
   .background {
     background-image: linear-gradient(
@@ -99,6 +116,7 @@ export default class App extends Vue {
     position: absolute;
     height: 100%;
     width: 100%;
+    backdrop-filter: blur(10px);
 
     .greeting {
       display: flex;
