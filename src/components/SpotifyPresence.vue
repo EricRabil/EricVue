@@ -49,12 +49,12 @@ export default class SpotifyPresence extends Vue {
   }
 
   get artwork (): string | null {
-    if (!this.presence || !this.presence.data) return null;
+    if (!this.presence || !this.presence.data) return null
     return (this.presence as any).data.artwork
   }
 
   get palette (): string[] {
-    if (!this.presence || !this.presence.data) return [];
+    if (!this.presence || !this.presence.data) return []
     return (this.presence as any).data.palette
   }
 
