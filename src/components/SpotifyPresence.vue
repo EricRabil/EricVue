@@ -11,9 +11,10 @@
         </span>
         <span class="detail-minor">
           by
-          <a v-for="(artist, index) of artists" :key="index" :href="artist.link" target="_blank">
-            {{artist.name}}
-          </a>
+          <span v-for="(artist, index) of artists" :key="index" >
+            <span v-if="index !== 0">, </span>
+            <a :href="artist.link" target="_blank">{{artist.name}}</a>
+          </span>
         </span>
         <span v-if="album" class="detail-minor">
           on <a :href="albumLink" target="_blank">{{album}}</a>
