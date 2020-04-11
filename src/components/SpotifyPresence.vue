@@ -5,13 +5,18 @@
       <img v-if="artwork" ref="artHolder" class="detail-asset" :src="artwork" alt="Album Artwork" />
       <div class="detail-text">
         <span class="detail-major">
-          {{song}}
+          <a :href="songLink" target="_blank">
+            {{song}}
+          </a>
         </span>
         <span class="detail-minor">
-          by {{artist}}
+          by
+          <a v-for="(artist, index) of artists" :key="index" :href="artist.link" target="_blank">
+            {{artist.name}}
+          </a>
         </span>
         <span v-if="album" class="detail-minor">
-          on {{album}}
+          on <a :href="albumLink" target="_blank">{{album}}</a>
         </span>
       </div>
     </div>
@@ -70,8 +75,16 @@ export default class SpotifyPresence extends Vue {
     return (this.presence.assets && this.presence.assets.largeText) || null
   }
 
-  get artist () {
-    return this.presence.state
+  get albumLink () {
+    return this.presence.data.albumLink
+  }
+
+  get songLink () {
+    return this.presence.data.songLink
+  }
+
+  get artists () {
+    return this.presence.data.artists
   }
 
   get song () {
@@ -79,3 +92,16 @@ export default class SpotifyPresence extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.spotify-presence {
+  a[href] {
+    text-decoration: none;
+    color: white;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+</style>
