@@ -7,16 +7,20 @@
         :assets="spotifyAssets"
       ></spotify-presence>
       <code-presence v-else-if="presence.name === 'Visual Studio Code'" :presence="presence"></code-presence>
+      <presenti-presence v-else-if="presence.applicationID === 'presenti'" :presence="presence"></presenti-presence>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { PresenceStream } from 'remote-presence-connector'
+import { PresenceStruct } from 'remote-presence-utils'
 import SpotifyPresence from '@/components/SpotifyPresence.vue'
 import CodePresence from '@/components/CodePresence.vue'
+import PresentiPresence from '@/components/PresentiPresence.vue'
 
-const PRESENCE_URL = process.env.VUE_APP_WS || 'ws://localhost:8138/presence'
+const PRESENCE_URL = process.env.VUE_APP_WS || 'ws://localhost:8138/presence/'
 
 export interface Presence {
   name: string;
@@ -60,27 +64,23 @@ export type SpotifyAssets = PresenceResponse['spotifyAssets'];
 @Component({
   components: {
     SpotifyPresence,
-    CodePresence
+    CodePresence,
+    PresentiPresence
   }
 })
 export default class DiscordStatus extends Vue {
-  presences: Presence[] = [];
+  presences: PresenceStruct[] = [];
   spotifyAssets: SpotifyAssets = {};
-  socket: WebSocket = null!;
+  stream: PresenceStream = null!;
 
   created () {
     this.respawnSocket()
   }
 
   respawnSocket () {
-    this.socket = new WebSocket(PRESENCE_URL)
-    this.socket.addEventListener('message', ({ data }) => {
-      const { activities, spotifyAssets } = JSON.parse(data)
-
-      this.presences = activities
-      this.spotifyAssets = spotifyAssets
-    })
-    this.socket.addEventListener('close', () => setTimeout(() => this.respawnSocket(), 5000))
+    this.stream = new PresenceStream('eric', { url: PRESENCE_URL })
+    this.stream.on('presence', presences => { this.presences = presences })
+    this.stream.connect()
   }
 
   observing = false;
@@ -154,6 +154,15 @@ $min-row: 800px;
     font-size: 0.85rem;
   }
 
+  a[href] {
+    text-decoration: none;
+    color: white;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .presence-cta {
     font-size: 0.7em;
     text-transform: uppercase;
@@ -169,7 +178,7 @@ $min-row: 800px;
 
   .presence-detail {
     display: grid;
-    grid-template-columns: 75px minmax(0, 1fr);
+    grid-template-columns: min-content minmax(0, 175px);
     column-gap: $presence-spacing;
 
     .detail-asset {

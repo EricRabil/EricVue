@@ -1,20 +1,12 @@
 <template>
   <div class="presence code-presence">
-    <span class="presence-cta">
-      Coding
-    </span>
+    <span class="presence-cta">Coding</span>
     <div class="presence-detail">
       <img class="detail-asset" :src="largeImage" alt="Visual Studio Code Icon" />
       <div class="detail-text">
-        <span class="detail-major">
-          {{task}}
-        </span>
-        <span v-if="workspace" class="detail-minor">
-          {{workspace}}
-        </span>
-        <span class="detail-minor">
-          in {{appName}}
-        </span>
+        <span class="detail-major">{{task}}</span>
+        <span v-if="workspace" class="detail-minor">{{workspace}}</span>
+        <span class="detail-minor">in {{appName}}</span>
         <span class="detail-muted" v-if="time">{{time}} elapsed</span>
       </div>
     </div>
@@ -25,8 +17,7 @@
 import moment from 'moment'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Presence } from '../DiscordStatus.vue'
-
-const DAPI_CDN = (app: string, asset: string) => `https://cdn.discordapp.com/app-assets/${app}/${asset}.png`
+import { DAPI_CDN } from '../util'
 
 @Component
 export default class CodePresence extends Vue {
@@ -93,3 +84,12 @@ export default class CodePresence extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.code-presence {
+  .presence-detail {
+    display: grid;
+    grid-template-columns: 75px minmax(0, 1fr) !important;
+  }
+}
+</style>

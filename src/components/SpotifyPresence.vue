@@ -21,14 +21,20 @@
         </span>
       </div>
     </div>
+    <time-bar :start-str="start" :end-str="end"></time-bar>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Presence, SpotifyAssets } from '../DiscordStatus.vue'
+import TimeBar from '@/components/TimeBar.vue'
 
-@Component
+@Component({
+  components: {
+    TimeBar
+  }
+})
 export default class SpotifyPresence extends Vue {
   @Prop()
   presence: Presence;
@@ -91,18 +97,20 @@ export default class SpotifyPresence extends Vue {
   get song () {
     return this.presence.details
   }
+
+  get start () {
+    if (!this.presence.timestamps) return null
+    return this.presence.timestamps.start
+  }
+
+  get end () {
+    if (!this.presence.timestamps) return null
+    return this.presence.timestamps.end
+  }
 }
 </script>
 
 <style lang="scss">
 .spotify-presence {
-  a[href] {
-    text-decoration: none;
-    color: white;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 }
 </style>
