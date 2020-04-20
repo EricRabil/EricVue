@@ -1,22 +1,26 @@
 <template>
   <div class="presence presenti-presence">
-    <span class="presence-cta">
-      {{cta}}
+    <span class="presence-cta presence-cta-split">
+      {{title}}
+      <font-awesome-icon v-if="typeof paused === 'boolean'" :icon="['fa', paused ? 'pause' : 'play']" />
     </span>
     <div class="presence-detail">
-      <c-link :link="imageLink">
-        <img class="detail-asset" :src="image" alt="Image" />
+      <c-link :link="image.link">
+        <img class="detail-asset" :src="image.src" alt="Image" />
       </c-link>
       <div class="detail-text">
-        <c-link class="detail-major" :link="largeTextLink">
-          {{largeText}}
+        <c-link class="detail-major" :link="largeText.link">
+          {{largeText.text}}
         </c-link>
-        <c-link v-for="(smallText, index) of smallTexts" :key="index" class="detail-minor" :link="smallTextLinks[index]">
-          {{smallText}}
+        <c-link v-for="({ text, link }, index) of smallTexts" :key="index" class="detail-minor" :link="link">
+          {{text}}
         </c-link>
+        <span v-if="start && !end">
+          <time-bar :stopped="paused === true" :start="start" :end="end"></time-bar> Elapsed
+        </span>
       </div>
     </div>
-    <time-bar :start-str="start" :end-str="end"></time-bar>
+    <time-bar v-if="start && end" :stopped="paused === true" :start="start" :end="end"></time-bar>
   </div>
 </template>
 
@@ -28,22 +32,7 @@ import { Presence } from '../DiscordStatus.vue'
 import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from '@/components/TimeBar.vue'
-
-export interface PresentiPresence extends Presence {
-  assets?: {
-    largeImage?: string;
-    largeText?: string;
-    smallImage?: string;
-    smallText?: string;
-    smallTexts?: string[];
-  };
-  data?: {
-    largeTextLink?: string;
-    smallTextLink?: string;
-    smallTextLinks?: string[];
-    imageLink?: string;
-  };
-}
+import { PresenceStruct } from 'remote-presence-utils/js/types'
 
 @Component({
   components: {
@@ -54,56 +43,72 @@ export interface PresentiPresence extends Presence {
 })
 export default class PresentiChromePresence extends Vue {
   @Prop()
-  presence: PresentiPresence;
+  presence: PresenceStruct;
 
   get image () {
-    return this.presence.assets?.largeImage
+    if (typeof this.presence.image === 'string') {
+      return {
+        src: this.presence.image
+      }
+    }
+
+    return this.presence.image
   }
 
   get largeText () {
-    return this.presence.assets?.largeText
-  }
+    if (typeof this.presence.largeText === 'string') {
+      return {
+        text: this.presence.largeText
+      }
+    }
 
-  get largeTextLink () {
-    return this.presence.data?.largeTextLink
-  }
-
-  get smallText () {
-    return this.presence.assets?.smallText
-  }
-
-  get smallTextLink () {
-    return this.presence.data?.smallTextLink
+    return this.presence.largeText
   }
 
   get smallTexts () {
-    const { smallTexts, smallText } = this.presence.assets || {}
-    const rawStrs = [smallText, ...(smallTexts || [])]
-    return rawStrs
+    if (!this.presence.smallTexts || !Array.isArray(this.presence.smallTexts)) return []
+
+    return this.presence.smallTexts.map(text => {
+      if (typeof text === 'string') {
+        return {
+          text
+        }
+      }
+
+      return text
+    })
   }
 
-  get smallTextLinks () {
-    const { smallTextLink, smallTextLinks } = this.presence.data || {}
-    return [smallTextLink, ...(smallTextLinks || [])]
+  get paused () {
+    return this.presence.isPaused
   }
 
-  get imageLink () {
-    return this.presence.data?.imageLink
+  get gradient () {
+    if (typeof this.presence.gradient === 'boolean') {
+      return {
+        enabled: this.presence.gradient
+      }
+    };
+
+    return this.presence.gradient
   }
 
-  get cta () {
-    const ctaType = this.presence.type.slice(0, 1).toUpperCase() + this.presence.type.slice(1).toLowerCase()
-    return `${ctaType} ${this.presence.name}`
+  get title () {
+    return this.presence.title
+  }
+
+  get effective () {
+    return this.presence.effective
   }
 
   get start () {
-    if (!this.presence.timestamps || !this.presence.timestamps.start) return null
-    return this.presence.timestamps.start
+    if (!this.presence.timestamps) return
+    return new Date(this.effective - this.presence.timestamps.position!)
   }
 
   get end () {
-    if (!this.presence.timestamps || !this.presence.timestamps.end) return null
-    return this.presence.timestamps.end
+    if (!this.presence.timestamps || !this.presence.timestamps.duration) return
+    return new Date(this.effective + (this.presence.timestamps.duration - (this.presence.timestamps.position || 0)))
   }
 }
 </script>

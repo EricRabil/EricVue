@@ -1,13 +1,7 @@
 <template>
   <div class="status-holder" v-if="presences.length > 0">
     <div class="presence-root" v-for="(presence, idx) of presences" :key="idx">
-      <spotify-presence
-        v-if="presence.name === 'Spotify'"
-        :presence="presence"
-        :assets="spotifyAssets"
-      ></spotify-presence>
-      <code-presence v-else-if="presence.name === 'Visual Studio Code'" :presence="presence"></code-presence>
-      <presenti-presence v-else-if="presence.applicationID === 'presenti'" :presence="presence"></presenti-presence>
+      <presenti-presence :effective="effective" :presence="presence"></presenti-presence>
     </div>
   </div>
 </template>
@@ -16,8 +10,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { PresenceStream } from 'remote-presence-connector'
 import { PresenceStruct } from 'remote-presence-utils'
-import SpotifyPresence from '@/components/SpotifyPresence.vue'
-import CodePresence from '@/components/CodePresence.vue'
 import PresentiPresence from '@/components/PresentiPresence.vue'
 
 const PRESENCE_URL = process.env.VUE_APP_WS || 'ws://localhost:8138/presence/'
@@ -63,8 +55,6 @@ export type SpotifyAssets = PresenceResponse['spotifyAssets'];
 
 @Component({
   components: {
-    SpotifyPresence,
-    CodePresence,
     PresentiPresence
   }
 })
@@ -72,6 +62,26 @@ export default class DiscordStatus extends Vue {
   presences: PresenceStruct[] = [];
   spotifyAssets: SpotifyAssets = {};
   stream: PresenceStream = null!;
+  gradients: string[] = [];
+  effective: number = Date.now();
+
+  interval: ReturnType<typeof setTimeout>;
+
+  roll () {
+    const color = this.next()
+    if (color) this.$store.commit('setBackground', color)
+    this.interval = setTimeout(this.roll, color ? 15000 : 1000)
+  }
+
+  index = 0;
+  next (): string | null {
+    if (!this.gradients) return null
+    if (this.gradients.length === 0) return null
+    const value = this.gradients[this.index]
+    this.index += 1
+    if (this.index >= this.gradients.length) this.index = 0
+    return value
+  }
 
   created () {
     this.respawnSocket()
@@ -79,39 +89,27 @@ export default class DiscordStatus extends Vue {
 
   respawnSocket () {
     this.stream = new PresenceStream('eric', { url: PRESENCE_URL })
-    this.stream.on('presence', presences => { this.presences = presences })
+    this.stream.on('presence', (activities) => { this.presences = activities })
     this.stream.connect()
   }
 
-  observing = false;
-
   mounted () {
-    this.$watch('presences', presences => {
-      if (this.observing) return
-
-      const recompute = () => {
-        if (!this.$el || !this.$el.children) return
-        const children = Array.from(this.$el.children)
-        children.sort((a, b) => b.clientWidth - a.clientWidth)
-        children.forEach((c, i) => {
-          (c as HTMLElement).style.order = i.toString()
-          c.classList.toggle('no-margin', i === 1)
-        })
-      }
-
-      const observer = new MutationObserver(mutations => {
-        recompute()
-      })
-
-      recompute()
-
-      observer.observe(this.$el, {
-        childList: true,
-        subtree: true,
-        characterData: true
-      })
-      this.observing = true
-    })
+    this.$watch('presences', (presences: PresenceStruct[]) => {
+      const [gradient] = presences.filter(p => {
+        if (!p.shades || p.shades.length === 0) return
+        if (typeof p.gradient === 'boolean') return p.gradient === true
+        else return p.gradient?.enabled
+      }).sort((a, b) => {
+        const aPriority: number = typeof a.gradient === 'boolean' ? 0 : (a.gradient?.priority || 0)
+        const bPriority: number = typeof b.gradient === 'boolean' ? 0 : (b.gradient?.priority || 0)
+        return bPriority - aPriority
+      }).map(p => p.shades)
+      this.gradients = gradient || []
+      clearTimeout(this.interval)
+      this.roll()
+      this.$emit('gradient-shift')
+    }, { deep: true })
+    this.roll()
   }
 }
 </script>
@@ -168,12 +166,9 @@ $min-row: 800px;
     text-transform: uppercase;
     font-weight: bolder;
     padding-bottom: $presence-spacing;
-
-    &.presence-cta-split {
-      display: grid;
-      grid-template-columns: 75px minmax(0, 1fr);
-      column-gap: $presence-spacing;
-    }
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15px;
+    column-gap: $presence-spacing;
   }
 
   .presence-detail {

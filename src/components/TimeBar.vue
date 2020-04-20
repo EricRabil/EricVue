@@ -1,8 +1,8 @@
 <template>
-  <div class="time-bar" v-if="startStr && endStr">
+  <div class="time-bar" v-if="start">
     <span class="timer-timestamp">{{currentTime}}</span>
-    <vue-slider :disabled="true" :value="progress"></vue-slider>
-    <span class="timer-timestamp">{{endTime}}</span>
+    <vue-slider v-if="end" :disabled="true" :value="progress"></vue-slider>
+    <span v-if="end" class="timer-timestamp">{{endTime}}</span>
   </div>
 </template>
 
@@ -19,10 +19,13 @@ import 'vue-slider-component/theme/default.css'
 })
 export default class TimeBar extends Vue {
   @Prop()
-  startStr: string;
+  start: Date;
 
   @Prop()
-  endStr: string;
+  end: Date;
+
+  @Prop()
+  stopped: boolean;
 
   progress = 0;
   currentTime = '00:00';
@@ -31,6 +34,7 @@ export default class TimeBar extends Vue {
 
   mounted () {
     this.interval = setInterval(() => {
+      if (this.stopped === true) return
       this.updateTime()
     }, 1000)
     this.updateTime()
@@ -41,7 +45,11 @@ export default class TimeBar extends Vue {
   }
 
   updateTime () {
-    if (!this.start || !this.end) return
+    if (!this.start) return
+    this.currentTime = moment(moment().diff(moment(this.start))).format(
+      'mm:ss'
+    )
+    if (!this.end) return
     let newProgress =
       100 *
       ((Date.now() - this.start.getTime()) /
@@ -53,19 +61,7 @@ export default class TimeBar extends Vue {
     )
     if (this.progress >= 100) {
       this.currentTime = this.endTime
-    } else {
-      this.currentTime = moment(moment().diff(moment(this.start))).format(
-        'mm:ss'
-      )
     }
-  }
-
-  get start (): Date {
-    return new Date(this.startStr)
-  }
-
-  get end (): Date {
-    return new Date(this.endStr)
   }
 }
 </script>
@@ -73,19 +69,21 @@ export default class TimeBar extends Vue {
 <style lang="scss">
 .time-bar {
   padding-top: 5px;
-  display: flex;
+  display: inline-flex;
   flex-flow: row;
   align-items: center;
 
   .timer-timestamp {
-    font-size: 0.8em;
+    &:not(:only-child) {
+      font-size: 0.8em;
 
-    &:first-child {
-      margin-right: 10px;
-    }
+      &:first-child {
+        margin-right: 10px;
+      }
 
-    &:last-child {
-      margin-left: 10px;
+      &:last-child {
+        margin-left: 10px;
+      }
     }
   }
 

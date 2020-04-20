@@ -7,7 +7,7 @@
     <div class="contents">
       <div class="greeting">
         <h1>Hi, I'm Eric Rabil</h1>
-        <discord-status></discord-status>
+        <discord-status @gradient-shift="() => smoothBackground = 0"></discord-status>
         <social-things></social-things>
       </div>
     </div>
@@ -31,7 +31,7 @@ enum BackgroundState {
   }
 })
 export default class App extends Vue {
-  smoothBackground: BackgroundState = BackgroundState.PRELOAD;
+  smoothBackground: BackgroundState = BackgroundState.INIT;
 
   mounted () {
     this.$watch('background', (background) => {
