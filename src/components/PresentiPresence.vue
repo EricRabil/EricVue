@@ -27,7 +27,7 @@
 import moment from 'moment'
 import VueSlider from 'vue-slider-component'
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Presence } from '../DiscordStatus.vue'
+import { Presence } from '../StatusRenderer.vue'
 import ConditionalLink from './ConditionalLink.vue'
 import 'vue-slider-component/theme/default.css'
 import TimeBar from '@/components/TimeBar.vue'
