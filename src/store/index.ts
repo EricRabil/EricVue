@@ -5,7 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    backgroundColor: '#ff0000'
+    backgroundColor: '#ff0000',
+    widgetsOnly: new URLSearchParams(location.search).get('widgetsonly') === '1'
   },
   mutations: {
     setBackground (state, background: string) {

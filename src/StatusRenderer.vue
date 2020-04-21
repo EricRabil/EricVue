@@ -171,14 +171,45 @@ $min-row: 800px;
     column-gap: $presence-spacing;
   }
 
+  &.presence-asset-only {
+    min-width: 125px;
+
+    .presence-cta {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding-bottom: 0;
+    }
+
+    .time-bar {
+      font-size: 0.75em;
+
+      .timer-timestamp {
+        margin: 0 auto;
+      }
+    }
+
+    .presence-detail {
+      padding-top: $presence-spacing;
+    }
+  }
+
   .presence-detail {
     display: grid;
     grid-template-columns: min-content minmax(0, 175px);
     column-gap: $presence-spacing;
 
+    &.presence-single {
+      grid-template-columns: 1fr;
+    }
+
     .detail-asset {
       height: 75px;
       border-radius: 5px;
+    }
+
+    .asset-holder {
+      display: flex;
+      justify-content: center;
     }
 
     .detail-text {

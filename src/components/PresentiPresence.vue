@@ -1,11 +1,12 @@
 <template>
-  <div class="presence presenti-presence">
+  <div :class="['presence presenti-presence', {'presence-asset-only': assetOnly}]">
     <span class="presence-cta presence-cta-split">
       {{title}}
       <font-awesome-icon v-if="typeof paused === 'boolean'" :icon="['fa', paused ? 'pause' : 'play']" />
     </span>
-    <div class="presence-detail">
-      <c-link :link="image.link">
+    <time-bar v-if="assetOnly" :stopped="paused === true" :start="start" :end="end"></time-bar>
+    <div :class="['presence-detail', {'presence-single': assetOnly}]">
+      <c-link v-if="image" class="asset-holder" :link="image.link">
         <img class="detail-asset" :src="image.src" alt="Image" />
       </c-link>
       <div class="detail-text">
@@ -15,12 +16,10 @@
         <c-link v-for="({ text, link }, index) of smallTexts" :key="index" class="detail-minor" :link="link">
           {{text}}
         </c-link>
-        <span v-if="start && !end">
-          <time-bar :stopped="paused === true" :start="start" :end="end"></time-bar> Elapsed
-        </span>
+        <time-bar v-if="!(assetOnly || (start && end))" :stopped="paused === true" :start="start" :end="end"></time-bar>
       </div>
     </div>
-    <time-bar v-if="start && end" :stopped="paused === true" :start="start" :end="end"></time-bar>
+    <time-bar v-if="(start && end)" :stopped="paused === true" :start="start" :end="end"></time-bar>
   </div>
 </template>
 
@@ -101,14 +100,16 @@ export default class PresentiChromePresence extends Vue {
     return this.presence.effective
   }
 
+  get assetOnly () {
+    return this.image?.src && !(this.largeText?.text) && this.smallTexts.filter(t => !!t && !!t.text).length === 0
+  }
+
   get start () {
-    if (!this.presence.timestamps) return
-    return new Date(this.effective - this.presence.timestamps.position!)
+    return this.presence.timestamps?.start
   }
 
   get end () {
-    if (!this.presence.timestamps || !this.presence.timestamps.duration) return
-    return new Date(this.effective + (this.presence.timestamps.duration - (this.presence.timestamps.position || 0)))
+    return this.presence.timestamps?.stop
   }
 }
 </script>

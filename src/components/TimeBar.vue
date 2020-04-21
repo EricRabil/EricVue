@@ -11,6 +11,8 @@ import moment from 'moment'
 import VueSlider from 'vue-slider-component'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import 'vue-slider-component/theme/default.css'
+const durationFormat = require('moment-duration-format')
+durationFormat(moment)
 
 @Component({
   components: {
@@ -19,10 +21,10 @@ import 'vue-slider-component/theme/default.css'
 })
 export default class TimeBar extends Vue {
   @Prop()
-  start: Date;
+  start: number;
 
   @Prop()
-  end: Date;
+  end: number;
 
   @Prop()
   stopped: boolean;
@@ -44,21 +46,38 @@ export default class TimeBar extends Vue {
     clearInterval(this.interval)
   }
 
+  get startDate () {
+    return this.start ? new Date(this.start) : null
+  }
+
+  get endDate () {
+    return this.end ? new Date(this.end) : null
+  }
+
+  elapsed () {
+    if (!this.startDate) return
+    const elapsed = moment.duration(moment().diff(this.startDate)).humanize()
+    return `for ${elapsed}`
+  }
+
   updateTime () {
-    if (!this.start) return
-    this.currentTime = moment(moment().diff(moment(this.start))).format(
+    if (!this.startDate) return
+    this.currentTime = moment(moment().diff(moment(this.startDate))).format(
       'mm:ss'
     )
-    if (!this.end) return
+    if (!this.endDate) {
+      this.currentTime = this.elapsed()!
+      return
+    }
     let newProgress =
       100 *
-      ((Date.now() - this.start.getTime()) /
-        (this.end.getTime() - this.start.getTime()))
+      ((Date.now() - this.startDate.getTime()) /
+        (this.endDate.getTime() - this.startDate.getTime()))
     if (newProgress >= 100) newProgress = 100
     this.progress = newProgress
-    this.endTime = moment(this.end.getTime() - this.start.getTime()).format(
-      'mm:ss'
-    )
+    this.endTime = moment(
+      this.endDate.getTime() - this.startDate.getTime()
+    ).format('mm:ss')
     if (this.progress >= 100) {
       this.currentTime = this.endTime
     }
@@ -95,14 +114,14 @@ export default class TimeBar extends Vue {
     width: 95% !important;
     margin: 0 auto;
 
-      .vue-slider-rail {
-        border-radius: 15px;
-        overflow: hidden;
+    .vue-slider-rail {
+      border-radius: 15px;
+      overflow: hidden;
 
-        .vue-slider-process {
-          border-radius: 0 !important;
-        }
+      .vue-slider-process {
+        border-radius: 0 !important;
       }
+    }
 
     .vue-slider-dot {
       display: none;

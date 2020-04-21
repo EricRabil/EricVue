@@ -15,6 +15,7 @@
     "core-js": "^3.6.4",
     "gradstop": "^2.2.3",
     "moment": "^2.24.0",
+    "moment-duration-format": "^2.3.2",
     "remote-presence-connector": "github:EricRabil/remote-presence-connector",
     "remote-presence-utils": "github:EricRabil/remote-presence-utils",
     "reset-css": "^5.0.1",

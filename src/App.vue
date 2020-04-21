@@ -6,9 +6,9 @@
     </div>
     <div class="contents">
       <div class="greeting">
-        <h1>Hi, I'm Eric Rabil</h1>
-        <discord-status @gradient-shift="() => smoothBackground = 0"></discord-status>
-        <social-things></social-things>
+        <h1 v-if="showMeta">Hi, I'm Eric Rabil</h1>
+        <status-renderer @gradient-shift="() => smoothBackground = 0"></status-renderer>
+        <social-things v-if="showMeta"></social-things>
       </div>
     </div>
   </div>
@@ -48,6 +48,10 @@ export default class App extends Vue {
     })
 
     this.$el.classList.remove('from-ssr')
+  }
+
+  get showMeta () {
+    return !this.$store.state.widgetsOnly
   }
 
   get stops () {

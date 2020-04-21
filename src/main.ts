@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Toasted from 'vue-toasted'
 import App from './App.vue'
-import DiscordStatus from './DiscordStatus.vue'
+import StatusRenderer from './StatusRenderer.vue'
 import store from './store'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faGithub, faTwitter, faInstagram, faReddit, faDiscord } from '@fortawesome/free-brands-svg-icons'
@@ -20,7 +20,7 @@ Vue.use(VueClipboard)
 
 Vue.config.productionTip = false
 
-Vue.component('discord-status', DiscordStatus)
+Vue.component('status-renderer', StatusRenderer)
 
 new Vue({
   store,
