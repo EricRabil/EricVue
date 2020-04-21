@@ -1,4 +1,7 @@
 # eric-vue
+This is an example frontend for https://github.com/EricRabil/PresenceBot
+
+Feel free to fork and customize this repo, or use any portion of the code here, so long as it abides by the GPLv3 license :)
 
 ## Project setup
 ```
