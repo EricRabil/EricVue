@@ -96,10 +96,6 @@ export default class PresentiChromePresence extends Vue {
     return this.presence.title
   }
 
-  get effective () {
-    return this.presence.effective
-  }
-
   get assetOnly () {
     return this.image?.src && !(this.largeText?.text) && this.smallTexts.filter(t => !!t && !!t.text).length === 0
   }

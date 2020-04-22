@@ -53,6 +53,13 @@ export interface PresenceResponse {
 
 export type SpotifyAssets = PresenceResponse['spotifyAssets'];
 
+interface PresenceState {
+  gradient?: {
+    color?: string;
+    transition?: string;
+  };
+}
+
 @Component({
   components: {
     PresentiPresence
@@ -60,28 +67,9 @@ export type SpotifyAssets = PresenceResponse['spotifyAssets'];
 })
 export default class DiscordStatus extends Vue {
   presences: PresenceStruct[] = [];
-  spotifyAssets: SpotifyAssets = {};
+  presenceState: PresenceState = {};
   stream: PresenceStream = null!;
-  gradients: string[] = [];
   effective: number = Date.now();
-
-  interval: ReturnType<typeof setTimeout>;
-
-  roll () {
-    const color = this.next()
-    if (color) this.$store.commit('setBackground', color)
-    this.interval = setTimeout(this.roll, color ? 15000 : 1000)
-  }
-
-  index = 0;
-  next (): string | null {
-    if (!this.gradients) return null
-    if (this.gradients.length === 0) return null
-    const value = this.gradients[this.index]
-    this.index += 1
-    if (this.index >= this.gradients.length) this.index = 0
-    return value
-  }
 
   created () {
     this.respawnSocket()
@@ -90,26 +78,16 @@ export default class DiscordStatus extends Vue {
   respawnSocket () {
     this.stream = new PresenceStream('eric', { url: PRESENCE_URL })
     this.stream.on('presence', (activities) => { this.presences = activities })
+    this.stream.on('state', (state) => { this.presenceState = state })
     this.stream.connect()
   }
 
   mounted () {
-    this.$watch('presences', (presences: PresenceStruct[]) => {
-      const [gradient] = presences.filter(p => {
-        if (!p.shades || p.shades.length === 0) return
-        if (typeof p.gradient === 'boolean') return p.gradient === true
-        else return p.gradient?.enabled
-      }).sort((a, b) => {
-        const aPriority: number = typeof a.gradient === 'boolean' ? 0 : (a.gradient?.priority || 0)
-        const bPriority: number = typeof b.gradient === 'boolean' ? 0 : (b.gradient?.priority || 0)
-        return bPriority - aPriority
-      }).map(p => p.shades)
-      this.gradients = gradient || []
-      clearTimeout(this.interval)
-      this.roll()
-      this.$emit('gradient-shift')
+    this.$watch('presenceState', (state: PresenceState) => {
+      const { color, transition } = state.gradient || {}
+      this.$store.commit('setBackground', color)
+      this.$store.commit('setTransition', transition)
     }, { deep: true })
-    this.roll()
   }
 }
 </script>

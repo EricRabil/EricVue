@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="background-root">
-      <div :class="['background', {'background-fast': smoothBackground === 1, 'background-smooth': smoothBackground === 2}]" :style="{'background-color': background}">
+      <div class="background" :style="{'background-color': background, 'transition-duration': transition}">
     </div>
     </div>
     <div class="contents">
@@ -31,22 +31,7 @@ enum BackgroundState {
   }
 })
 export default class App extends Vue {
-  smoothBackground: BackgroundState = BackgroundState.INIT;
-
   mounted () {
-    this.$watch('background', (background) => {
-      switch (this.smoothBackground) {
-        case BackgroundState.INIT:
-          // phase 1, fast transition
-          this.smoothBackground = BackgroundState.PRELOAD
-          break
-        case BackgroundState.PRELOAD:
-          // phase 2, standard transition
-          this.smoothBackground = BackgroundState.ROLLING
-          break
-      }
-    })
-
     this.$el.classList.remove('from-ssr')
   }
 
@@ -54,12 +39,8 @@ export default class App extends Vue {
     return !this.$store.state.widgetsOnly
   }
 
-  get stops () {
-    return gradstop({
-      stops: 10,
-      inputFormat: 'hex',
-      colorArray: [this.background, '#000000']
-    })
+  get transition () {
+    return `${this.$store.state.transition}ms`
   }
 
   get background () {
@@ -92,14 +73,8 @@ export default class App extends Vue {
     height: 100%;
     width: 100%;
     position: absolute;
-
-    &.background-fast {
-      transition: background-color 5s ease-in-out;
-    }
-
-    &.background-smooth {
-      transition: background-color 16s ease-in-out;
-    }
+    transition-property: background-color;
+    transition-timing-function: ease-in-out;
   }
 
   &.from-ssr {
