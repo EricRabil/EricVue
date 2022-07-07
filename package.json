@@ -14,7 +14,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.9",
     "core-js": "^3.6.4",
     "gradstop": "^2.2.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "remote-presence-connector": "file:../remote-presence-connector",
     "remote-presence-utils": "file:../remote-presence-utils",
